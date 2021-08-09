@@ -1,0 +1,8 @@
+name: Simple-Packet-Listener
+author: DrogoniEntity
+description: Another interface to allow plugins to handle packets.
+version: Beta 1.0
+
+main: fr.drogonistudio.spigot.packets.SimplePacketListenerPlugin
+load: STARTUP
+api-version: 1.13
