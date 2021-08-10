@@ -9,51 +9,84 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
+/**
+ * Custom channel handler.
+ * 
+ * <p>
+ * This channel handler is injected into player's channel and fire
+ * {@code PacketEvent} depends on if client send data or server send data.
+ * </p>
+ * 
+ * @author DrogoniEntity
+ * @see fr.drogonistudio.spigot.packets.event.PacketEvent PacketEvent class.
+ */
 public class RemoteClientChannelHandler extends ChannelDuplexHandler
 {
-	public static final String HANDLER_NAME = "spl_prehandler";
-	
-	private final RemoteClient client;
-	
-	public RemoteClientChannelHandler(RemoteClient client)
-	{
-		this.client = client;
-	}
-	
-	@Override
-	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception
-	{
-		if (this.handle(msg, PacketSendEvent.class))
-			super.write(ctx, msg, promise);
-	}
+    /**
+     * Channel handler name.
+     */
+    public static final String HANDLER_NAME = "spl_prehandler";
 
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
-	{
-		if (this.handle(msg, PacketReceiveEvent.class))
-			super.channelRead(ctx, msg);
-	}
+    /**
+     * Remote client who communicate with server.
+     */
+    private final RemoteClient client;
 
-	private boolean handle(Object msg, Class<? extends PacketEvent> eventClass)
-	{
-		boolean shouldContinue = true;
-		
-		// Proceed only if msg's class name contains 'net.minecraft' and 'Packet'.
-		String className = msg.getClass().getName();
-		if (className.contains("net.minecraft") && className.contains("Packet"))
-		{
-			try
-			{
-				PacketEvent event = eventClass.getConstructor(Object.class, RemoteClient.class).newInstance(msg, this.client);
-				Bukkit.getServer().getPluginManager().callEvent(event);
-				
-				shouldContinue = !event.isCancelled();
-			}
-			catch (Throwable fatal)
-			{
-			}
-		}
-		
-		return shouldContinue;
-	}
+    /**
+     * Setup channel handler.
+     * 
+     * @param client - remote client.
+     */
+    public RemoteClientChannelHandler(RemoteClient client)
+    {
+        this.client = client;
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception
+    {
+        if (this.handle(msg, PacketSendEvent.class))
+            super.write(ctx, msg, promise);
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+    {
+        if (this.handle(msg, PacketReceiveEvent.class))
+            super.channelRead(ctx, msg);
+    }
+
+    /**
+     * Custom job to execute before continuing netty's job.
+     * 
+     * <p>
+     * If {@code msg} is a valide Minecraft packet, a new packet event will be
+     * created and fired by Bukkit's plugin manager.
+     * </p>
+     * 
+     * @param msg        - data to handle.
+     * @param eventClass - {@code PacketEvent} type to fire.
+     * @return {@code true} if event havn't been cancelled.
+     */
+    private boolean handle(Object msg, Class<? extends PacketEvent> eventClass)
+    {
+        boolean shouldContinue = true;
+
+        // Proceed only if msg's class name contains 'net.minecraft' and 'Packet'.
+        String className = msg.getClass().getName();
+        if (className.contains("net.minecraft") && className.contains("Packet"))
+        {
+            try
+            {
+                PacketEvent event = eventClass.getConstructor(Object.class, RemoteClient.class).newInstance(msg, this.client);
+                Bukkit.getServer().getPluginManager().callEvent(event);
+
+                shouldContinue = !event.isCancelled();
+            } catch (Throwable fatal)
+            {
+            }
+        }
+
+        return shouldContinue;
+    }
 }
