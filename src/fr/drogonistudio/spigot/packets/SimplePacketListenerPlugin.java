@@ -78,19 +78,25 @@ public class SimplePacketListenerPlugin extends JavaPlugin
             ex.printStackTrace();
         }
     }
-    
+
+    /**
+     * Retrieve a player from a socket address.
+     * 
+     * @param addr - player's address.
+     * @return player connected from {@code addr} or {@code null} if not found.
+     */
     private Player getPlayerFromAddress(InetSocketAddress addr)
     {
         Player find = null;
         Iterator<? extends Player> onlinePlayers = getServer().getOnlinePlayers().iterator();
-        
+
         while (onlinePlayers.hasNext() && find == null)
         {
             Player player = onlinePlayers.next();
             if (player.getAddress().equals(addr))
                 find = player;
         }
-        
+
         return find;
     }
 
@@ -105,32 +111,9 @@ public class SimplePacketListenerPlugin extends JavaPlugin
         @EventHandler(priority = EventPriority.LOWEST)
         public void onPlayerLogin(PlayerLoginEvent event)
         {
-            Player player = event.getPlayer();
-            InetAddress remoteAddress = event.getAddress();
-            
-            try
-            {
-                List<Channel> channels = InjectionUtils.getServerChannels(getServer());
-                
-                Iterator<Channel> iterator = channels.iterator();
-                boolean injected = false;
-                while (iterator.hasNext() && !injected)
-                {
-                    Channel channel = iterator.next();
-                    if (((InetSocketAddress) channel.remoteAddress()).getAddress().equals(remoteAddress))
-                    {
-                        InjectionUtils.injectCustomHandler(player, channel);
-                        injected = true;
-                    }
-                }
-                
-            } catch (ReflectiveOperationException ex)
-            {
-                getLogger().severe("Couldn't get active server's channels !");
-                ex.printStackTrace();
-            }
+            this.injectFromChannels(event.getPlayer(), event.getAddress());
         }
-        
+
         @EventHandler(priority = EventPriority.LOWEST)
         public void onPlayerJoin(PlayerJoinEvent event)
         {
@@ -166,7 +149,11 @@ public class SimplePacketListenerPlugin extends JavaPlugin
         @EventHandler(priority = EventPriority.LOWEST)
         public void onServerListPing(ServerListPingEvent event)
         {
-            InetAddress remoteAddress = event.getAddress();
+            this.injectFromChannels(null, event.getAddress());
+        }
+
+        private void injectFromChannels(Player player, InetAddress remoteAddress)
+        {
             try
             {
                 List<Channel> channels = InjectionUtils.getServerChannels(getServer());
@@ -176,7 +163,7 @@ public class SimplePacketListenerPlugin extends JavaPlugin
                 while (iterator.hasNext() && !injected)
                 {
                     Channel channel = iterator.next();
-                    
+
                     if (((InetSocketAddress) channel.remoteAddress()).getAddress().equals(remoteAddress))
                     {
                         InjectionUtils.injectCustomHandler(null, channel);
