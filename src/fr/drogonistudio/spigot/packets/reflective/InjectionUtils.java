@@ -86,10 +86,8 @@ public class InjectionUtils
         ChannelPipeline pipeline = channel.pipeline();
         List<String> registeredHandlers = pipeline.names();
 
-        if (registeredHandlers.contains("packet_handler"))
-        {
-            removeCustomHandler(channel);
-            
+        if (registeredHandlers.contains("packet_handler") && !registeredHandlers.contains(RemoteClientChannelHandler.HANDLER_NAME))
+        {    
             RemoteClient client = new RemoteClient((InetSocketAddress) channel.remoteAddress(), player);
             RemoteClientChannelHandler handler = new RemoteClientChannelHandler(client);
             pipeline.addBefore("packet_handler", RemoteClientChannelHandler.HANDLER_NAME, handler);

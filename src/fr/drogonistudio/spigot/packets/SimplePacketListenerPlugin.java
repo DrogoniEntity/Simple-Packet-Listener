@@ -1,6 +1,5 @@
 package fr.drogonistudio.spigot.packets;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -109,12 +107,6 @@ public class SimplePacketListenerPlugin extends JavaPlugin
     private class ListenForInjection implements Listener
     {
         @EventHandler(priority = EventPriority.LOWEST)
-        public void onPlayerLogin(PlayerLoginEvent event)
-        {
-            this.injectFromChannels(event.getPlayer(), event.getAddress());
-        }
-
-        @EventHandler(priority = EventPriority.LOWEST)
         public void onPlayerJoin(PlayerJoinEvent event)
         {
             Player player = event.getPlayer();
@@ -149,26 +141,15 @@ public class SimplePacketListenerPlugin extends JavaPlugin
         @EventHandler(priority = EventPriority.LOWEST)
         public void onServerListPing(ServerListPingEvent event)
         {
-            this.injectFromChannels(null, event.getAddress());
-        }
-
-        private void injectFromChannels(Player player, InetAddress remoteAddress)
-        {
             try
             {
                 List<Channel> channels = InjectionUtils.getServerChannels(getServer());
                 Iterator<Channel> iterator = channels.iterator();
-                boolean injected = false;
 
-                while (iterator.hasNext() && !injected)
+                while (iterator.hasNext())
                 {
                     Channel channel = iterator.next();
-
-                    if (((InetSocketAddress) channel.remoteAddress()).getAddress().equals(remoteAddress))
-                    {
-                        InjectionUtils.injectCustomHandler(null, channel);
-                        injected = true;
-                    }
+                    InjectionUtils.injectCustomHandler(null, channel);
                 }
             } catch (ReflectiveOperationException ex)
             {
