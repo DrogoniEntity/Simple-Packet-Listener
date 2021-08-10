@@ -2,6 +2,7 @@ package fr.drogonistudio.spigot.packets.reflective;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -80,13 +81,16 @@ public class InjectionUtils
         return Collections.unmodifiableList(output);
     }
 
-    public static void injectCustomHandler(@Nonnull final RemoteClient client, @Nonnull final Channel channel)
+    public static void injectCustomHandler(Player player, @Nonnull final Channel channel)
     {
         ChannelPipeline pipeline = channel.pipeline();
         List<String> registeredHandlers = pipeline.names();
 
-        if (!registeredHandlers.contains(RemoteClientChannelHandler.HANDLER_NAME) && registeredHandlers.contains("packet_handler"))
+        if (registeredHandlers.contains("packet_handler"))
         {
+            removeCustomHandler(channel);
+            
+            RemoteClient client = new RemoteClient((InetSocketAddress) channel.remoteAddress(), player);
             RemoteClientChannelHandler handler = new RemoteClientChannelHandler(client);
             pipeline.addBefore("packet_handler", RemoteClientChannelHandler.HANDLER_NAME, handler);
         }
