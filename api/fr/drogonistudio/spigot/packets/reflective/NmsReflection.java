@@ -1,6 +1,7 @@
 package fr.drogonistudio.spigot.packets.reflective;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -152,6 +153,7 @@ public final class NmsReflection
      * @return {@code index}-th field of {@code fieldType}.
      * @throws NoSuchFieldException - if the targeted field isn't found.
      * @see #getFieldByIndex(Class, Class, int) - no-declared field version.
+     * @see java.lang.Class#getDeclaredFields()
      */
     public static Field getDeclaredFieldByIndex(Class<?> src, Class<?> fieldType, int index) throws NoSuchFieldException
     {
@@ -179,6 +181,7 @@ public final class NmsReflection
      * @return {@code index}-th field of {@code fieldType}.
      * @throws NoSuchFieldException - if the targeted field isn't found.
      * @see #getDeclaredFieldByIndex(Class, Class, int) - declared field version.
+     * @see java.lang.Class#getFields()
      */
     public static Field getFieldByIndex(Class<?> src, Class<?> fieldType, int index) throws NoSuchFieldException
     {
@@ -215,6 +218,115 @@ public final class NmsReflection
         }
 
         throw new NoSuchFieldException("Couldn't find a field of " + typeName + " in " + src.getName() + " - index " + index);
+    }
+
+    /**
+     * Getting {@code index}-th method from {@code src}.
+     * 
+     * <p>
+     * The method searching will iterate over all {@code src}'s declared methods and
+     * when we find a method who its return's type is {@code returnType} and its
+     * parameters are typed with {@code parametersTypes}, it will check if it was
+     * the {@code index}-th method from all method with same signature. If it was
+     * the case, it will return it. However, it will continue until we find this
+     * method.
+     * </p>
+     * 
+     * <p>
+     * In case of no method as been found, an {@code NoSuchMethodException} is
+     * thrown.
+     * </p>
+     * 
+     * @param src            - class to scan
+     * @param returnType     - method's return type
+     * @param parametersType - method's parameters type
+     * @param index          - method's location over all method with similar
+     *                       signature.
+     * @return {@code index}-th method over {@code src}'s declared method with
+     *         similar signature.
+     * @throws NoSuchMethodException - if method isn't found.
+     * @see #getMethodByIndex(Class, Class, Class[], int) - no-declared version
+     * @see java.lang.Class#getDeclaredMethods()
+     */
+    public Method getDeclaredMethodByIndex(Class<?> src, Class<?> returnType, Class<?> parametersType[], int index) throws NoSuchMethodException
+    {
+        return getMethodFromArrayAndIndex(src.getDeclaredMethods(), returnType, parametersType, index);
+    }
+
+    /**
+     * Getting {@code index}-th method from {@code src}.
+     * 
+     * <p>
+     * The method searching will iterate over all {@code src}'s visible methods and
+     * when we find a method who its return's type is {@code returnType} and its
+     * parameters are typed with {@code parametersTypes}, it will check if it was
+     * the {@code index}-th method from all method with same signature. If it was
+     * the case, it will return it. However, it will continue until we find this
+     * method.
+     * </p>
+     * 
+     * <p>
+     * In case of no method as been found, an {@code NoSuchMethodException} is
+     * thrown.
+     * </p>
+     * 
+     * @param src            - class to scan
+     * @param returnType     - method's return type
+     * @param parametersType - method's parameters type
+     * @param index          - method's location over all method with similar
+     *                       signature.
+     * @return {@code index}-th method over {@code src}'s method with similar
+     *         signature.
+     * @throws NoSuchMethodException - if method isn't found.
+     * @see #getDeclaredMethodByIndex(Class, Class, Class[], int) - declared version
+     * @see java.lang.Class#getMethods()
+     */
+    public Method getMethodByIndex(Class<?> src, Class<?> returnType, Class<?> parametersType[], int index) throws NoSuchMethodException
+    {
+        return getMethodFromArrayAndIndex(src.getMethods(), returnType, parametersType, index);
+    }
+
+    /**
+     * Method utility to perform method finding job.
+     * 
+     * @param methods        - methods to scan
+     * @param returnType     - method's return type
+     * @param parametersType - method's parameters type
+     * @param index          - method location
+     * @return {@code index}-th method over {@code src}'s method with similar
+     *         signature.
+     * @throws NoSuchMethodException - if targeted method isn't found.
+     * @see #getDeclaredMethodByIndex(Class, Class, Class[], int)
+     * @see #getMethodByIndex(Class, Class, Class[], int)
+     */
+    private static Method getMethodFromArrayAndIndex(Method methods[], Class<?> returnType, Class<?> parametersType[], int index) throws NoSuchMethodException
+    {
+        int counter = 0;
+        for (int i = 0; i < methods.length; i++)
+        {
+            Method method = methods[i];
+            if (method.getReturnType().getName().equals(returnType.getName()) && method.getParameterTypes().equals(parametersType))
+            {
+                if (counter == index)
+                    return method;
+                else
+                    counter++;
+            }
+        }
+
+        // Writing error message
+        StringBuilder msgBuilder = new StringBuilder("Couldn't find a method with following signature: ");
+        msgBuilder.append(returnType.getSimpleName()).append(' ');
+        msgBuilder.append("(");
+        for (int i = 0; i < parametersType.length; i++)
+        {
+            msgBuilder.append(parametersType[i].getSimpleName());
+            if (i < (parametersType.length - 1))
+                msgBuilder.append(", ");
+        }
+        msgBuilder.append(") at index ").append(index).append('.');
+
+        throw new NoSuchMethodException(msgBuilder.toString());
     }
 
     static
