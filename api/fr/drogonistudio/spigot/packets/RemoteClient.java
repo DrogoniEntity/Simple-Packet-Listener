@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
  * statement.
  * </p>
  * 
- * @author DrogoniEntity.
+ * @author DrogoniEntity
  */
 public final class RemoteClient
 {

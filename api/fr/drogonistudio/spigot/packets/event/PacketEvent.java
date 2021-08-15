@@ -38,7 +38,7 @@ public abstract class PacketEvent extends Event implements Cancellable
     /**
      * Packet to handled.
      */
-    private final Object packet;
+    private Object packet;
 
     /**
      * Remote client who receive or send {@code packet}.
@@ -98,6 +98,27 @@ public abstract class PacketEvent extends Event implements Cancellable
     }
 
     /**
+     * Replace current packet by {@code nextPacket}.
+     * 
+     * <p>
+     * {@code nextPacket} is a packet has same type of current packet and may be
+     * created with NMS or reflection. However, you couldn't set current packet to
+     * {@code nextPacket} if {@code nextPacket} doesn't have the same class.
+     * </p>
+     * 
+     * @param nextPacket - new packet to handled.
+     * @throws IllegalArgumentException - if {@code nextPacket} doesn't have the
+     *                                  same class of current packet.
+     */
+    public final void setPacket(Object nextPacket) throws IllegalArgumentException
+    {
+        if (nextPacket.getClass().equals(this.packet.getClass()))
+            this.packet = nextPacket;
+        else
+            throw new IllegalArgumentException("Couldn't change packet's type.");
+    }
+
+    /**
      * Getting remote client.
      * 
      * <p>
@@ -106,6 +127,7 @@ public abstract class PacketEvent extends Event implements Cancellable
      * </p>
      * 
      * @return remote client.
+     * @see fr.drogonistudio.spigot.packets.RemoteClient
      */
     public final RemoteClient getRemote()
     {
