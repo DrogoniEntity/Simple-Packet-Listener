@@ -157,7 +157,7 @@ public final class NmsReflection
      */
     public static Field getDeclaredFieldByIndex(Class<?> src, Class<?> fieldType, int index) throws NoSuchFieldException
     {
-        return getFieldFromArrayAndIndex(src, src.getDeclaredFields(), fieldType, index);
+        return getFieldFromArrayAndIndex(src.getDeclaredFields(), fieldType, index);
     }
 
     /**
@@ -185,7 +185,7 @@ public final class NmsReflection
      */
     public static Field getFieldByIndex(Class<?> src, Class<?> fieldType, int index) throws NoSuchFieldException
     {
-        return getFieldFromArrayAndIndex(src, src.getFields(), fieldType, index);
+        return getFieldFromArrayAndIndex(src.getFields(), fieldType, index);
     }
 
     /**
@@ -201,7 +201,7 @@ public final class NmsReflection
      * @see #getDeclaredFieldByIndex(Class, Class, int)
      * @see #getFieldByIndex(Class, Class, int)
      */
-    private static Field getFieldFromArrayAndIndex(Class<?> src, Field fields[], Class<?> fieldType, int index) throws NoSuchFieldException
+    private static Field getFieldFromArrayAndIndex(Field fields[], Class<?> fieldType, int index) throws NoSuchFieldException
     {
         int counter = 0;
         String typeName = fieldType.getName();
@@ -217,7 +217,7 @@ public final class NmsReflection
             }
         }
 
-        throw new NoSuchFieldException("Couldn't find a field of " + typeName + " in " + src.getName() + " - index " + index);
+        throw new NoSuchFieldException("Couldn't find a field of " + typeName + " at index " + index + ".");
     }
 
     /**
