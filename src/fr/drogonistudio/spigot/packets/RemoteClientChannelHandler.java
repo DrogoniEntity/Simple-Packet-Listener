@@ -75,7 +75,7 @@ public class RemoteClientChannelHandler extends ChannelDuplexHandler
         boolean shouldContinue = true;
 
         // Proceed only if msg's class name contains 'net.minecraft' and 'Packet'.
-        String className = msg.getClass().getName();
+        String className = msg.content.getClass().getName();
         if (className.contains("net.minecraft") && className.contains("Packet"))
         {
             try
