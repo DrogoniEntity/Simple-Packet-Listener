@@ -45,15 +45,17 @@ public class RemoteClientChannelHandler extends ChannelDuplexHandler
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception
     {
-        if (this.handle(msg, PacketSendEvent.class))
-            super.write(ctx, msg, promise);
+        Pointer<Object> msgPointer = new Pointer<>(msg);
+        if (this.handle(msgPointer, PacketSendEvent.class))
+            super.write(ctx, msgPointer.content, promise);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        if (this.handle(msg, PacketReceiveEvent.class))
-            super.channelRead(ctx, msg);
+        Pointer<Object> msgPointer = new Pointer<>(msg);
+        if (this.handle(msgPointer, PacketReceiveEvent.class))
+            super.channelRead(ctx, msgPointer.content);
     }
 
     /**
@@ -68,7 +70,7 @@ public class RemoteClientChannelHandler extends ChannelDuplexHandler
      * @param eventClass - {@code PacketEvent} type to fire.
      * @return {@code true} if event havn't been cancelled.
      */
-    private boolean handle(Object msg, Class<? extends PacketEvent> eventClass)
+    private boolean handle(Pointer<Object> msg, Class<? extends PacketEvent> eventClass)
     {
         boolean shouldContinue = true;
 
@@ -78,8 +80,9 @@ public class RemoteClientChannelHandler extends ChannelDuplexHandler
         {
             try
             {
-                PacketEvent event = eventClass.getConstructor(Object.class, RemoteClient.class).newInstance(msg, this.client);
+                PacketEvent event = eventClass.getConstructor(Object.class, RemoteClient.class).newInstance(msg.content, this.client);
                 Bukkit.getServer().getPluginManager().callEvent(event);
+                msg.content = event.getPacket();
 
                 shouldContinue = !event.isCancelled();
             } catch (Throwable fatal)
