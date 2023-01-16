@@ -1,0 +1,9 @@
+name: ExamplePacketListenerPlugin
+description: An example plugin for using Simple-Packet-Listener
+main: fr.drogonistudio.spigot.packets.example.ExamplePacketPlugin
+author: DrogoniEntity
+version: 1.0
+api-version: 1.13
+
+# We must specify "SimplePacketListener" as dependency
+depend: [ Simple-Packet-Listener ]
