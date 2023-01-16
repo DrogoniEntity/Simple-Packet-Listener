@@ -85,7 +85,8 @@ public class RemoteClientChannelHandler extends ChannelDuplexHandler
                 msg.content = event.getPacket();
 
                 shouldContinue = !event.isCancelled();
-            } catch (Throwable fatal)
+            }
+            catch (Throwable fatal)
             {
             }
         }

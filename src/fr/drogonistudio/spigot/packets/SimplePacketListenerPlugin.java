@@ -31,7 +31,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
         {
             // Loading reflection toolkit.
             Class.forName(NmsReflection.class.getName());
-        } catch (Throwable fatal)
+        }
+        catch (Throwable fatal)
         {
             getLogger().severe("Couldn't initialize reflective class ! Did the package schema has changed ?");
             fatal.printStackTrace();
@@ -52,7 +53,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
                 Player player = getPlayerFromAddress((InetSocketAddress) ch.remoteAddress());
                 InjectionUtils.injectCustomHandler(player, ch);
             });
-        } catch (ReflectiveOperationException ex)
+        }
+        catch (ReflectiveOperationException ex)
         {
             getLogger().warning("Couldn't get active server's channels !");
             ex.printStackTrace();
@@ -70,7 +72,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
             channels.forEach((ch) -> {
                 InjectionUtils.removeCustomHandler(ch);
             });
-        } catch (ReflectiveOperationException ex)
+        }
+        catch (ReflectiveOperationException ex)
         {
             getLogger().warning("Couldn't get active server's channels !");
             ex.printStackTrace();
@@ -115,7 +118,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
             {
                 Channel channel = InjectionUtils.getPlayerChannel(player);
                 InjectionUtils.injectCustomHandler(player, channel);
-            } catch (ReflectiveOperationException ex)
+            }
+            catch (ReflectiveOperationException ex)
             {
                 getLogger().severe("Couldn't inject packet handler to " + player.getName());
                 ex.printStackTrace();
@@ -131,7 +135,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
             {
                 Channel channel = InjectionUtils.getPlayerChannel(player);
                 InjectionUtils.removeCustomHandler(channel);
-            } catch (ReflectiveOperationException ex)
+            }
+            catch (ReflectiveOperationException ex)
             {
                 getLogger().severe("Couldn't remove packet handler from " + player.getName());
                 ex.printStackTrace();
@@ -151,7 +156,8 @@ public class SimplePacketListenerPlugin extends JavaPlugin
                     Channel channel = iterator.next();
                     InjectionUtils.injectCustomHandler(null, channel);
                 }
-            } catch (ReflectiveOperationException ex)
+            }
+            catch (ReflectiveOperationException ex)
             {
                 getLogger().warning("Couldn't get active server's channels !");
                 ex.printStackTrace();

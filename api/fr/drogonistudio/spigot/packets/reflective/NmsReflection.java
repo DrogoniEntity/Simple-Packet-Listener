@@ -346,7 +346,8 @@ public final class NmsReflection
         {
             getMinecraftClass("server.DispenserRegistry");
             isDevJar = false;
-        } catch (ClassNotFoundException isNotProdJar)
+        }
+        catch (ClassNotFoundException isNotProdJar)
         {
             isDevJar = true;
         }
