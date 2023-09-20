@@ -44,6 +44,8 @@ public class InjectionUtils
 
         Class<?> connectionClass = NmsReflection.getMinecraftClass(CONNECTION_CLASS_NAME);
         Field connectionField = NmsReflection.getDeclaredFieldByIndex(listenerClass, connectionClass, 0);
+        connectionField.setAccessible(true);
+        
         Object connection = connectionField.get(listener);
 
         Field channelField = NmsReflection.getDeclaredFieldByIndex(connectionClass, Channel.class, 0);
